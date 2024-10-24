@@ -15,6 +15,11 @@ struct Column(T)
     {
         return data.length;
     }
+
+    void opOpAssign(string op : "~")(T rhs)
+    {
+        data ~= rhs;
+    }
 }
 
 unittest

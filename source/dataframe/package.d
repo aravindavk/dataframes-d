@@ -53,6 +53,16 @@ struct DataFrame(T)
     {
         return length;
     }
+
+    /**
+     * Add a row to the dataframe.
+     */
+    void add(T data)
+    {
+        // Expands to this.fieldName ~= data.fieldName;
+        static foreach(name; fieldNames)
+            mixin("this." ~ name ~ " ~= " ~ "data." ~ name ~ ";");
+    }
 }
 
 unittest
@@ -76,4 +86,8 @@ unittest
     assert(df.length == 4);
 
     assert(df.columnNames == ["name", "price", "quantity"]);
+
+    auto item = Item("E", 49.0, 10);
+    df.add(item);
+    assert(df.nrow == 5);
 }
