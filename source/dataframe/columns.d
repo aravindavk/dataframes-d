@@ -20,6 +20,11 @@ struct Column(T)
     {
         data ~= rhs;
     }
+
+    T opIndex(size_t idx)
+    {
+        return data[idx];
+    }
 }
 
 unittest

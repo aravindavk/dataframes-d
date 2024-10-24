@@ -3,6 +3,7 @@ module dataframe;
 import std.traits;
 
 import dataframe.columns;
+import dataframe.rows;
 
 
 /**
@@ -90,4 +91,14 @@ unittest
     auto item = Item("E", 49.0, 10);
     df.add(item);
     assert(df.nrow == 5);
+
+    auto row = Row!Item(df, 0);
+    assert(row.name == "A");
+    assert(row.price == 149.0);
+    assert(row.quantity == 3);
+
+    auto row2 = Row!Item(df, 3);
+    assert(row2.name == "D");
+    assert(row2.price == 299.0);
+    assert(row2.quantity == 1);
 }
