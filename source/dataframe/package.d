@@ -64,6 +64,11 @@ struct DataFrame(T)
         static foreach(name; fieldNames)
             mixin("this." ~ name ~ " ~= " ~ "data." ~ name ~ ";");
     }
+
+    Row!T row(size_t idx)
+    {
+        return Row!T(this, idx);
+    }
 }
 
 unittest
@@ -79,9 +84,9 @@ unittest
 
     assert(df.ncol == 3);
 
-    df.name = Column!string(["A", "B", "C", "D"]);
-    df.price = Column!double([149.0, 799.0, 399.0, 299.0]);
-    df.quantity = Column!int([3, 1, 2, 1]);
+    df.name = ["A", "B", "C", "D"];
+    df.price = [149.0, 799.0, 399.0, 299.0];
+    df.quantity = [3, 1, 2, 1];
 
     assert(df.nrow == 4);
     assert(df.length == 4);
@@ -101,4 +106,6 @@ unittest
     assert(row2.name == "D");
     assert(row2.price == 299.0);
     assert(row2.quantity == 1);
+
+    assert(df.row(0).name == "A");
 }

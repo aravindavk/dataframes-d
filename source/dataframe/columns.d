@@ -16,6 +16,14 @@ struct Column(T)
         return data.length;
     }
 
+    /**
+     * Assign the Column data at once.
+     */
+    void opAssign(T[] rhs)
+    {
+        data = rhs;
+    }
+
     void opOpAssign(string op : "~")(T rhs)
     {
         data ~= rhs;
