@@ -37,16 +37,16 @@ To add initial data, initialize the DataFrame as,
 
 ```d
 auto df = new DataFrame!Item(
-    name: ["A", "B", "C"],
-    unitPrice: [99.0, 299.0, 55.0],
-    quantity: [2, 1, 4]
+    name: ["Pencil", "Pen", "Notebook"],
+    unitPrice: [5.0, 10.0, 25.0],
+    quantity: [5, 2, 7]
 );
 ```
 
 To add items one by one,
 
 ```d
-df.add(Item("A", 99.0, 2));
+df.add(Item("Pen", 10.0, 1));
 
 // OR from the list of Items
 foreach(item; items)
@@ -97,13 +97,25 @@ For complex formula or business logic, use the temporary column to calculate the
 Column!double discounts;
 foreach(name; df.name)
 {
-    if (name == "A")
+    if (name == "Notebook")
         discounts ~= 0.05;
-    else if (name == "C")
+    else if (name == "Pen")
         discounts ~= 0.02;
     else
         discounts ~= 0;
 }
 
 df.totalPrice = (df.unitPrice - discounts) * df.quantity;
+```
+
+## Using `std.algorithm` goodies with the DataFrame
+
+Following example shows the sum of total prices of a few selected items.
+
+```d
+df.rows
+  .filter!(item => item.name == "Pencil" || item.name == "Pen")
+  .map!(item => item.totalPrice)
+  .sum
+  .writeln;
 ```

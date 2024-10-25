@@ -1,6 +1,7 @@
 module dataframe.columns;
 
 import std.traits;
+import std.array;
 
 import dataframe.helpers;
 
@@ -82,6 +83,31 @@ struct Column(T)
             }
             return output;
         }
+    }
+
+    T front()
+    {
+        return this.data.front;
+    }
+
+    void popFront()
+    {
+        this.data.popFront;
+    }
+
+    bool empty()
+    {
+        return this.data.empty;
+    }
+
+    T back()
+    {
+        return this.data.back;
+    }
+
+    void popBack()
+    {
+        return this.data.popBack;
     }
 }
 

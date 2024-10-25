@@ -1,6 +1,7 @@
 module dataframe;
 
 import std.traits;
+import std.range;
 
 import dataframe.columns;
 import dataframe.rows;
@@ -13,6 +14,8 @@ class DataFrame(T)
 {
     alias fieldNames = FieldNameTuple!(T);
     alias fieldTypes = FieldTypeTuple!(T);
+
+    size_t[] index;
 
     static foreach(idx, type; fieldTypes)
     {
@@ -53,6 +56,7 @@ class DataFrame(T)
         }
 
         content ~= "if (!allColumnSameSize) throw new DataFrameException(\"All arrays must be of the same length\");";
+        content ~= "this.index = iota(length).array;";
 
         return content;
     }
@@ -103,11 +107,18 @@ class DataFrame(T)
         // Expands to this.fieldName ~= data.fieldName;
         static foreach(name; fieldNames)
             mixin("this." ~ name ~ " ~= " ~ "data." ~ name ~ ";");
+
+        this.index ~= length - 1;
     }
 
     Row!T row(size_t idx)
     {
         return Row!T(this, idx);
+    }
+
+    Rows!T rows()
+    {
+        return Rows!T(this, iota(length).array);
     }
 }
 
@@ -162,7 +173,7 @@ unittest
     assert(df.totalPrice == Column!double([447.0, 799.0, 798.0, 299.0, 490.0]));
 
     Column!double discounts;
-    foreach(name; df.name.data)
+    foreach(name; df.name)
     {
         if (name == "A")
             discounts ~= 0.05;
@@ -175,4 +186,11 @@ unittest
     df.totalPrice = (df.price - discounts) * df.quantity;
     // TODO: Fix approxEqual to fix the below test
     //assert(df.totalPrice == Column!double([446.85, 799, 797.96, 299, 490]));
+
+    import std.algorithm;
+
+    assert(df.rows
+           .filter!(r => r.name == "A" || r.name == "B")
+           .map!(r => r.quantity)
+           .sum == 4);
 }
