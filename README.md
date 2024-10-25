@@ -53,6 +53,27 @@ foreach(item; items)
     df.add(item)
 ```
 
+## Preview the DataFrame data
+
+Print the DataFrame to see the content. If the DataFrame has less than or equal to 10 rows then it prints the full DataFrame. It prints only first 5 and the last 5 rows otherwise.
+
+Example:
+
+```d
+df.writeln;
+```
+
+Sample output:
+
+```
+name         unitPrice    quantity  totalPrice
+Pencil            5.00           5         nan
+Pen              10.00           2         nan
+Notebook         25.00           7         nan
+
+3 rows
+```
+
 ## Number of Columns and Rows
 
 ```d

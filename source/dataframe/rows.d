@@ -20,6 +20,11 @@ struct Rows(T)
         this.indices = indices;
     }
 
+    size_t length()
+    {
+        return this.indices.length;
+    }
+
     Rows!T save()
     {
         return this;
@@ -48,6 +53,11 @@ struct Rows(T)
     void popBack()
     {
         this.indices.popBack;
+    }
+
+    Row!T opIndex(size_t idx)
+    {
+        return Row!T(this.df, this.indices[idx]);
     }
 }
 

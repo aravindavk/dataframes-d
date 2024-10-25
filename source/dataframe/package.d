@@ -2,6 +2,10 @@ module dataframe;
 
 import std.traits;
 import std.range;
+import std.algorithm;
+import std.array;
+import std.format;
+import std.conv : text;
 
 import dataframe.columns;
 import dataframe.rows;
@@ -119,6 +123,74 @@ class DataFrame(T)
     Rows!T rows()
     {
         return Rows!T(this, iota(length).array);
+    }
+
+    private string formatRow(size_t idx)
+    {
+        auto output = appender!string;
+
+        static foreach(name; fieldNames)
+        {
+            static if(isNumeric!(typeof( __traits(getMember, this, name).data[0])))
+            {
+                if (is(typeof( __traits(getMember, this, name).data[0]) == double))
+                    output.put(format("%10.2f  ", __traits(getMember, this, name).data[idx]));
+                else
+                    output.put(format("%10s  ", __traits(getMember, this, name).data[idx]));
+            }
+            else
+                output.put(format("%-10s  ", __traits(getMember, this, name).data[idx]));
+        }
+
+        return output.data ~ "\n";
+    }
+
+    private string formatHeader()
+    {
+        auto output = appender!string;
+
+        if (length > 0)
+        {
+            foreach(cname; fieldNames)
+            {
+                static if(isNumeric!(typeof( __traits(getMember, this, cname).data[0])))
+                    output.put(format("%10s  ", cname));
+                else
+                    output.put(format("%-10s  ", cname));
+            }
+
+            output ~= "\n";
+        }
+
+        return output.data;
+    }
+
+    override string toString()
+    {
+        auto output = appender!string;
+        // TODO: Print Title and field information
+
+        size_t previewSize = length > 10 ? 10 : length;
+
+        output ~= formatHeader;
+
+        if (length <= 10)
+        {
+            foreach(r; this.rows)
+                output ~= formatRow(r.index);
+        }
+        else
+        {
+            rows.take(5).each!(r => output ~= formatRow(r.index));
+
+            output.put(".\n.\n.\n");
+
+            rows.tail(5).each!(r => output ~= formatRow(r.index));
+        }
+
+        output.put(i"\n$(length) rows".text);
+
+        return output.data;
     }
 }
 
