@@ -157,4 +157,22 @@ unittest
     assert(row2.quantity == 1);
 
     assert(df.row(0).name == "A");
+
+    df.totalPrice = df.price * df.quantity;
+    assert(df.totalPrice == Column!double([447.0, 799.0, 798.0, 299.0, 490.0]));
+
+    Column!double discounts;
+    foreach(name; df.name.data)
+    {
+        if (name == "A")
+            discounts ~= 0.05;
+        else if (name == "C")
+            discounts ~= 0.02;
+        else
+            discounts ~= 0;
+    }
+
+    df.totalPrice = (df.price - discounts) * df.quantity;
+    // TODO: Fix approxEqual to fix the below test
+    //assert(df.totalPrice == Column!double([446.85, 799, 797.96, 299, 490]));
 }

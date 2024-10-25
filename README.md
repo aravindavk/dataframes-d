@@ -21,7 +21,7 @@ struct Item
     string name;
     double unitPrice;
     int quantity;
-    double price;
+    double totalPrice;
 }
 ```
 
@@ -38,7 +38,7 @@ To add initial data, initialize the DataFrame as,
 ```d
 auto df = new DataFrame!Item(
     name: ["A", "B", "C"],
-    price: [99.0, 299.0, 55.0],
+    unitPrice: [99.0, 299.0, 55.0],
     quantity: [2, 1, 4]
 );
 ```
@@ -78,5 +78,32 @@ writeln(firstRow.name, " ", firstRow.unitPrice * firstRow.quantity);
 Access column,
 
 ```d
-auto firstPrice = df.price[0];
+auto firstPrice = df.unitPrice[0];
+```
+
+## Updating the derived columns
+
+In the above example, `totalPrice` data is not available in the initial dataset. To calculate the `totalPrice`,
+
+```d
+df.totalPrice = df.unitPrice * df.quantity;
+```
+
+Above command will update `totalPrice` of all the rows.
+
+For complex formula or business logic, use the temporary column to calculate the total price and add the results to DataFrame.
+
+```d
+Column!double discounts;
+foreach(name; df.name)
+{
+    if (name == "A")
+        discounts ~= 0.05;
+    else if (name == "C")
+        discounts ~= 0.02;
+    else
+        discounts ~= 0;
+}
+
+df.totalPrice = (df.unitPrice - discounts) * df.quantity;
 ```
