@@ -1,5 +1,7 @@
 module dataframe.columns;
 
+import dataframe.helpers;
+
 /**
  * DataFrame Column to store all the elements of
  * the column.
@@ -21,6 +23,10 @@ struct Column(T)
      */
     void opAssign(T[] rhs)
     {
+        // Length is set by the dataframe so insert data
+        if (data.length != rhs.length)
+            throw new DataFrameException("All arrays must be of the same length");
+
         data = rhs;
     }
 

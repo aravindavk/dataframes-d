@@ -13,7 +13,7 @@ struct Row(T)
     alias fieldNames = FieldNameTuple!(T);
     alias fieldTypes = FieldTypeTuple!(T);
 
-    this(ref DataFrame!T df, size_t rowIndex)
+    this(DataFrame!T df, size_t rowIndex)
     {
         this.df = df;
         this.rowIndex = rowIndex;

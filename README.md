@@ -28,10 +28,20 @@ struct Item
 Now create the DataFrame.
 
 ```d
-DataFrame!Item df;
+auto df = new DataFrame!Item;
 ```
 
 ## Adding items
+
+To add initial data, initialize the DataFrame as,
+
+```d
+auto df = new DataFrame!Item(
+    name: ["A", "B", "C"],
+    price: [99.0, 299.0, 55.0],
+    quantity: [2, 1, 4]
+);
+```
 
 To add items one by one,
 
@@ -41,14 +51,6 @@ df.add(Item("A", 99.0, 2));
 // OR from the list of Items
 foreach(item; items)
     df.add(item)
-```
-
-To add the items in bulk,
-
-```d
-df.name = ["A", "B", "C"];
-df.price = [99.0, 299.0, 55.0];
-df.quantity = [2, 1, 4];
 ```
 
 ## Number of Columns and Rows
