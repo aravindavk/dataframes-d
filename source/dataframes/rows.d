@@ -1,11 +1,11 @@
-module dataframe.rows;
+module dataframes.rows;
 
 import std.traits;
 import std.conv : text;
 import std.range;
 import std.format;
 
-import dataframe;
+import dataframes;
 
 struct Row(T)
 {

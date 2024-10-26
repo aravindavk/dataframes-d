@@ -1,4 +1,4 @@
-module dataframe;
+module dataframes;
 
 import std.traits;
 import std.range;
@@ -7,9 +7,9 @@ import std.array;
 import std.format;
 import std.conv : text;
 
-import dataframe.columns;
-import dataframe.rows;
-import dataframe.helpers;
+import dataframes.columns;
+import dataframes.rows;
+import dataframes.helpers;
 
 /**
  * DataFrame

@@ -1,5 +1,5 @@
-name "dataframe"
-description "Simple DataFrame"
+name "dataframes"
+description "Simple DataFrame for D programming language"
 authors "Aravinda VK <vkaravinda7@gmail.com>"
 copyright "Copyright © 2024, Aravinda VK <vkaravinda7@gmail.com>"
 license "MIT"

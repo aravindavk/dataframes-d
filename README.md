@@ -4,7 +4,7 @@ Simple DataFrame for D programming language. Each field from the given struct wi
 
 ## Install
 
-Add `dataframe` to your project by running the following command.
+Add `dataframes` to your project by running the following command.
 
 ```
 dub add dataframes

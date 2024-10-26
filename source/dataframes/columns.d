@@ -1,9 +1,9 @@
-module dataframe.columns;
+module dataframes.columns;
 
 import std.traits;
 import std.array;
 
-import dataframe.helpers;
+import dataframes.helpers;
 
 /**
  * DataFrame Column to store all the elements of

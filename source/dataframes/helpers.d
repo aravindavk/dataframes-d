@@ -1,4 +1,4 @@
-module dataframe.helpers;
+module dataframes.helpers;
 
 
 class DataFrameException : Exception
