@@ -140,3 +140,32 @@ df.rows
   .sum
   .writeln;
 ```
+
+Multisort using name and quantity fields.
+
+```d
+df.rows
+    .multiSort!("a.name < b.name", "a.quantity > b.quantity")
+    .writeln;
+```
+
+## Importing data from CSV file
+
+If struct fields and data in CSV matches then we can give `csvReader!Item` to import all the items. But the CSV file may contain more data which are not imported. In such cases, define a new Tuple type.
+
+```d
+import std.csv;
+import std.typecons;
+
+//                         name    unitPrice  quantity
+alias ItemCsvData = Tuple!(string, double,    int);
+auto df = new DataFrame!Item;
+
+auto file = File("items_2024_10_26.csv", "r");
+// header: null to ignore the header row
+foreach (record;file.byLine.joiner("\n").csvReader!ItemCsvData(header: null))
+    df.add(Item(record[0], record[1], record[2]));
+
+// Preview the imported data
+df.writeln;
+```
