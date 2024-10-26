@@ -20,6 +20,7 @@ class DataFrame(T)
     alias fieldTypes = FieldTypeTuple!(T);
 
     size_t[] index;
+    alias RowType = Row!T;
 
     static foreach(idx, type; fieldTypes)
     {
@@ -115,19 +116,25 @@ class DataFrame(T)
         this.index ~= length - 1;
     }
 
-    Row!T row(size_t idx)
+    RowType row(size_t idx)
     {
         return Row!T(this, idx);
     }
 
-    Rows!T rows()
+    RowType[] rows()
     {
-        return Rows!T(this, iota(length).array);
+        RowType[] output;
+        output.length = length;
+        foreach(idx; 0..length)
+            output[idx] = RowType(this, idx);
+        return output;
     }
 
     private string formatRow(size_t idx)
     {
         auto output = appender!string;
+
+        output ~= format("%10s  ", idx);
 
         static foreach(name; fieldNames)
         {
@@ -148,6 +155,8 @@ class DataFrame(T)
     private string formatHeader()
     {
         auto output = appender!string;
+
+        output ~= format("%10s  ", "Index");
 
         if (length > 0)
         {
@@ -170,8 +179,6 @@ class DataFrame(T)
         auto output = appender!string;
         // TODO: Print Title and field information
 
-        size_t previewSize = length > 10 ? 10 : length;
-
         output ~= formatHeader;
 
         if (length <= 10)
@@ -183,7 +190,7 @@ class DataFrame(T)
         {
             rows.take(5).each!(r => output ~= formatRow(r.index));
 
-            output.put(".\n.\n.\n");
+            output.put(format("%10s\n%10s\n", ".", "."));
 
             rows.tail(5).each!(r => output ~= formatRow(r.index));
         }
@@ -265,4 +272,17 @@ unittest
            .filter!(r => r.name == "A" || r.name == "B")
            .map!(r => r.quantity)
            .sum == 4);
+
+    df.add(Item("A", 149.0, 10));
+
+    // Sort by name and then by quantity
+    auto result = df.rows
+        .multiSort!("a.name < b.name", "a.quantity > b.quantity", SwapStrategy.unstable);
+
+    assert(result[0].name == "A" && result[1].name == "A");
+    assert(result[0].quantity == 10.0 && result[1].quantity == 3.0);
+    assert(result[2].name == "B");
+    assert(result[3].name == "C");
+    assert(result[4].name == "D");
+    assert(result[5].name == "E");
 }

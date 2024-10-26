@@ -3,63 +3,9 @@ module dataframe.rows;
 import std.traits;
 import std.conv : text;
 import std.range;
+import std.format;
 
 import dataframe;
-
-struct Rows(T)
-{
-    DataFrame!T df;
-    size_t[] indices;
-
-    alias fieldNames = FieldNameTuple!(T);
-    alias fieldTypes = FieldTypeTuple!(T);
-
-    this(DataFrame!T df, size_t[] indices)
-    {
-        this.df = df;
-        this.indices = indices;
-    }
-
-    size_t length()
-    {
-        return this.indices.length;
-    }
-
-    Rows!T save()
-    {
-        return this;
-    }
-
-    bool empty()
-    {
-        return this.indices.empty;
-    }
-
-    Row!T front()
-    {
-        return Row!T(this.df, this.indices.front);
-    }
-
-    void popFront()
-    {
-        this.indices.popFront;
-    }
-
-    Row!T back()
-    {
-        return Row!T(this.df, this.indices.back);
-    }
-
-    void popBack()
-    {
-        this.indices.popBack;
-    }
-
-    Row!T opIndex(size_t idx)
-    {
-        return Row!T(this.df, this.indices[idx]);
-    }
-}
 
 struct Row(T)
 {
@@ -69,17 +15,33 @@ struct Row(T)
     alias fieldNames = FieldNameTuple!(T);
     alias fieldTypes = FieldTypeTuple!(T);
 
-    this(DataFrame!T df, size_t rowIndex)
-    {
-        this.df = df;
-        this.index = rowIndex;
-    }
-
     static foreach(idx, name; fieldNames)
     {
         // For each DataFrame column, add a function to access the
         // row by name. For example,
         //     double price() { return this.df.price[this.rowIndex]; }
         mixin(i"$(fieldTypes[idx].stringof) $(name)() {return this.df.$(name)[this.index];}".text);
+    }
+
+    string toString()
+    {
+        auto output = appender!string;
+
+        output ~= format("Row(index=%s", this.index);
+
+        static foreach(name; fieldNames)
+        {
+            static if(isNumeric!(typeof( __traits(getMember, this.df, name).data[0])))
+            {
+                if (is(typeof( __traits(getMember, this.df, name).data[0]) == double))
+                    output.put(format(", %.2f", __traits(getMember, this.df, name).data[index]));
+                else
+                    output.put(format(", %s", __traits(getMember, this.df, name).data[index]));
+            }
+            else
+                output.put(format(", %s", __traits(getMember, this.df, name).data[index]));
+        }
+
+        return output.data ~ ")";
     }
 }
