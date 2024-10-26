@@ -1,5 +1,15 @@
 # DataFrame
 
+Simple DataFrame for D programming language. Each field from the given struct will be converted as DataFrame Column to store the array. This library is focused on making a easy to use DataFrame in D.
+
+## Install
+
+Add `dataframe` to your project by running the following command.
+
+```
+dub add dataframes
+```
+
 ## Create a new DataFrame
 
 Create a struct that represents the Row of the DataFrame. For example, to store the item and price information.
@@ -72,6 +82,34 @@ Pen              10.00           2         nan
 Notebook         25.00           7         nan
 
 3 rows
+```
+
+## Full Example
+
+```
+import std.stdio;
+
+import dataframes;
+
+struct Item
+{
+    string name;
+    double unitPrice;
+    int quantity;
+    double totalPrice;
+}
+
+void main()
+{
+    auto df = new DataFrame!Item(
+        name: ["Pencil", "Pen", "Notebook"],
+        unitPrice: [5.0, 10.0, 25.0],
+        quantity: [5, 2, 7]
+    );
+
+    // Preview
+    df.writeln;
+}
 ```
 
 ## Number of Columns and Rows
