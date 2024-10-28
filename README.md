@@ -207,3 +207,21 @@ foreach (record;file.byLine.joiner("\n").csvReader!ItemCsvData(header: null))
 // Preview the imported data
 df.writeln;
 ```
+
+## Copying the DataFrame or creating DataFrame of new Type
+
+To create a `PriceList` dataframe from the list of items.
+
+```d
+struct PriceList
+{
+    string name;
+    double price;
+}
+
+df.rows
+    .sort!("a.name < b.name")
+    .uniq!("a.name == b.name")
+    .to_df!PriceList
+    .writeln;
+```

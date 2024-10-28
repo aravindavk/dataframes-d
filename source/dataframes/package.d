@@ -199,6 +199,20 @@ class DataFrame(T)
 
         return output.data;
     }
+
+    DataFrame!T to_df()
+    {
+        return to_df!T;
+    }
+
+    DataFrame!T1 to_df(T1)()
+    {
+        auto output = new DataFrame!T1;
+        foreach(r; this.rows)
+            output.add(r.toDataFrameStruct!T1);
+
+        return output;
+    }
 }
 
 unittest
@@ -285,4 +299,27 @@ unittest
     assert(result[3].name == "C");
     assert(result[4].name == "D");
     assert(result[5].name == "E");
+
+    struct PriceList
+    {
+        string name;
+        double price;
+    }
+
+    auto items = df.rows
+        .sort!("a.name < b.name")
+        .uniq!("a.name == b.name")
+        .to_df!PriceList;
+
+    assert(items.length == 5);
+    assert(items.ncol == 2);
+    assert(items.columnNames == ["name", "price"]);
+
+    auto dfCopy = df.to_df;
+    assert(dfCopy.ncol == 4);
+    assert(dfCopy.nrow == 6);
+
+    auto itemsDf = df.to_df!PriceList;
+    assert(itemsDf.ncol == 2);
+    assert(itemsDf.nrow == 6);
 }
