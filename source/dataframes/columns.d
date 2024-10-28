@@ -11,14 +11,14 @@ import dataframes.helpers;
  */
 struct Column(T)
 {
-    T[] data;
+    T[] values;
 
     /**
      * Get the length of Items in the column
      */
     size_t length()
     {
-        return data.length;
+        return values.length;
     }
 
     /**
@@ -27,29 +27,29 @@ struct Column(T)
     void opAssign(T[] rhs)
     {
         // Length is set by the dataframe so insert data
-        if (data.length != rhs.length)
+        if (values.length != rhs.length)
             throw new DataFrameException("All arrays must be of the same length");
 
-        data = rhs;
+        values = rhs;
     }
 
     void opAssign(Column!T rhs)
     {
         // Length is set by the dataframe so insert data
-        if (data.length != rhs.length)
+        if (values.length != rhs.length)
             throw new DataFrameException("All arrays must be of the same length");
 
-        data = rhs.data;
+        values = rhs.values;
     }
 
     void opOpAssign(string op : "~")(T rhs)
     {
-        data ~= rhs;
+        values ~= rhs;
     }
 
     T opIndex(size_t idx)
     {
-        return data[idx];
+        return values[idx];
     }
 
     // TODO: Support all Operations?
@@ -59,23 +59,23 @@ struct Column(T)
     {
         auto opBinary(string op, T2)(T2 rhs)
         {
-            alias OutputType = CommonType!(T, typeof(rhs.data[0]));
+            alias OutputType = CommonType!(T, typeof(rhs.values[0]));
             Column!OutputType output;
-            foreach(idx, d; data)
+            foreach(idx, d; values)
             {
                 switch(op)
                 {
                 case "+":
-                    output.data ~= d + rhs.data[idx];
+                    output.values ~= d + rhs.values[idx];
                     break;
                 case "/":
-                    output.data ~= d / rhs.data[idx];
+                    output.values ~= d / rhs.values[idx];
                     break;
                 case "-":
-                    output.data ~= d - rhs.data[idx];
+                    output.values ~= d - rhs.values[idx];
                     break;
                 case "*":
-                    output.data ~= d * rhs.data[idx];
+                    output.values ~= d * rhs.values[idx];
                     break;
                 default:
                     assert(0, "Operator " ~ op ~ " not implemented");
@@ -87,27 +87,27 @@ struct Column(T)
 
     T front()
     {
-        return this.data.front;
+        return this.values.front;
     }
 
     void popFront()
     {
-        this.data.popFront;
+        this.values.popFront;
     }
 
     bool empty()
     {
-        return this.data.empty;
+        return this.values.empty;
     }
 
     T back()
     {
-        return this.data.back;
+        return this.values.back;
     }
 
     void popBack()
     {
-        return this.data.popBack;
+        return this.values.popBack;
     }
 }
 

@@ -56,8 +56,8 @@ class DataFrame(T)
             // Ex: if (FIELD.length > 0)
             //         this.FIELD = FIELD;
             //     else
-            //         this.FIELD.data.length = dfSize;
-            content ~= "if (" ~ name ~ ".length > 0) this." ~ name ~ ".data = " ~ name ~ "; else this." ~ name ~ ".data.length = dfSize;";
+            //         this.FIELD.values.length = dfSize;
+            content ~= "if (" ~ name ~ ".length > 0) this." ~ name ~ ".values = " ~ name ~ "; else this." ~ name ~ ".values.length = dfSize;";
         }
 
         content ~= "if (!allColumnSameSize) throw new DataFrameException(\"All arrays must be of the same length\");";
@@ -138,15 +138,15 @@ class DataFrame(T)
 
         static foreach(name; fieldNames)
         {
-            static if(isNumeric!(typeof( __traits(getMember, this, name).data[0])))
+            static if(isNumeric!(typeof( __traits(getMember, this, name).values[0])))
             {
-                if (is(typeof( __traits(getMember, this, name).data[0]) == double))
-                    output.put(format("%10.2f  ", __traits(getMember, this, name).data[idx]));
+                if (is(typeof( __traits(getMember, this, name).values[0]) == double))
+                    output.put(format("%10.2f  ", __traits(getMember, this, name).values[idx]));
                 else
-                    output.put(format("%10s  ", __traits(getMember, this, name).data[idx]));
+                    output.put(format("%10s  ", __traits(getMember, this, name).values[idx]));
             }
             else
-                output.put(format("%-10s  ", __traits(getMember, this, name).data[idx]));
+                output.put(format("%-10s  ", __traits(getMember, this, name).values[idx]));
         }
 
         return output.data ~ "\n";
@@ -162,7 +162,7 @@ class DataFrame(T)
         {
             foreach(cname; fieldNames)
             {
-                static if(isNumeric!(typeof( __traits(getMember, this, cname).data[0])))
+                static if(isNumeric!(typeof( __traits(getMember, this, cname).values[0])))
                     output.put(format("%10s  ", cname));
                 else
                     output.put(format("%-10s  ", cname));

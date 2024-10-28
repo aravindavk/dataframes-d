@@ -31,15 +31,15 @@ struct Row(T)
 
         static foreach(name; fieldNames)
         {
-            static if(isNumeric!(typeof( __traits(getMember, this.df, name).data[0])))
+            static if(isNumeric!(typeof( __traits(getMember, this.df, name).values[0])))
             {
-                if (is(typeof( __traits(getMember, this.df, name).data[0]) == double))
-                    output.put(format(", %.2f", __traits(getMember, this.df, name).data[index]));
+                if (is(typeof( __traits(getMember, this.df, name).values[0]) == double))
+                    output.put(format(", %.2f", __traits(getMember, this.df, name).values[index]));
                 else
-                    output.put(format(", %s", __traits(getMember, this.df, name).data[index]));
+                    output.put(format(", %s", __traits(getMember, this.df, name).values[index]));
             }
             else
-                output.put(format(", %s", __traits(getMember, this.df, name).data[index]));
+                output.put(format(", %s", __traits(getMember, this.df, name).values[index]));
         }
 
         return output.data ~ ")";
