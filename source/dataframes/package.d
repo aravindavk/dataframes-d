@@ -7,9 +7,12 @@ import std.array;
 import std.format;
 import std.conv : text;
 
-import dataframes.columns;
-import dataframes.rows;
-import dataframes.helpers;
+public
+{
+    import dataframes.helpers;
+    import dataframes.columns;
+    import dataframes.rows;
+}
 
 /**
  * DataFrame
