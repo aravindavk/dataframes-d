@@ -59,23 +59,32 @@ struct Column(T)
     {
         auto opBinary(string op, T2)(T2 rhs)
         {
-            alias OutputType = CommonType!(T, typeof(rhs.values[0]));
+            static if (isNumeric!T2)
+                alias OutputType = CommonType!(T, T2);
+            else
+                alias OutputType = CommonType!(T, typeof(rhs.values[0]));
+
             Column!OutputType output;
             foreach(idx, d; values)
             {
+                static if (isNumeric!T2)
+                    auto rhsValue = rhs;
+                else
+                    auto rhsValue = rhs.values[idx];
+
                 switch(op)
                 {
                 case "+":
-                    output.values ~= d + rhs.values[idx];
+                    output.values ~= d + rhsValue;
                     break;
                 case "/":
-                    output.values ~= d / rhs.values[idx];
+                    output.values ~= d / rhsValue;
                     break;
                 case "-":
-                    output.values ~= d - rhs.values[idx];
+                    output.values ~= d - rhsValue;
                     break;
                 case "*":
-                    output.values ~= d * rhs.values[idx];
+                    output.values ~= d * rhsValue;
                     break;
                 default:
                     assert(0, "Operator " ~ op ~ " not implemented");
