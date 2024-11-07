@@ -167,6 +167,26 @@ foreach(name; df.name)
 df.totalPrice = (df.unitPrice - discounts) * df.quantity;
 ```
 
+Or multiply the column by a single number.
+
+```d
+df.totalPrice = (df.unitPrice - df.unitPrice * 0.05) * df.quantity;
+```
+
+## Head and Tail
+
+To get first `n` records from the dataframe,
+
+```d
+auto firstTwo = df.head(2);
+```
+
+To get last `n` records from the DataFrame,
+
+```d
+auto lastValue = df.tail(1);
+```
+
 ## Using `std.algorithm` goodies with the DataFrame
 
 Following example shows the sum of total prices of a few selected items.

@@ -133,6 +133,36 @@ class DataFrame(T)
         return output;
     }
 
+    RowType[] head(size_t count = 10)
+    {
+        if (length < count)
+            count = length;
+
+        RowType[] output;
+        output.length = count;
+        foreach(idx; 0..count)
+            output[idx] = RowType(this, idx);
+
+        return output;
+    }
+
+    RowType[] tail(size_t count = 10)
+    {
+        auto start = length - count;
+        if (length < count)
+        {
+            start = 0;
+            count = length;
+        }
+
+        RowType[] output;
+        output.length = count;
+        foreach(idx; start..length)
+            output[idx-start] = RowType(this, idx);
+
+        return output;
+    }
+
     private string formatRow(size_t idx)
     {
         auto output = appender!string;
@@ -191,11 +221,11 @@ class DataFrame(T)
         }
         else
         {
-            rows.take(5).each!(r => output ~= formatRow(r.index));
+            this.head(5).each!(r => output ~= formatRow(r.index));
 
             output.put(format("%10s\n%10s\n", ".", "."));
 
-            rows.tail(5).each!(r => output ~= formatRow(r.index));
+            this.tail(5).each!(r => output ~= formatRow(r.index));
         }
 
         output.put(i"\n$(length) rows".text);
@@ -325,4 +355,14 @@ unittest
     auto itemsDf = df.to_df!PriceList;
     assert(itemsDf.ncol == 2);
     assert(itemsDf.nrow == 6);
+
+    auto firstTwo = df.head(2);
+    assert(firstTwo.length == 2);
+    assert(firstTwo[0].name == "A");
+    assert(firstTwo[1].name == "B");
+
+    auto lastTwo = df.tail(2);
+    assert(lastTwo.length == 2);
+    assert(lastTwo[0].name == "E");
+    assert(lastTwo[1].name == "A");
 }
