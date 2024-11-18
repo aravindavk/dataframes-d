@@ -4,6 +4,8 @@ import std.traits;
 import std.conv : text;
 import std.range;
 import std.format;
+import std.variant;
+import core.exception;
 
 import dataframes;
 
@@ -21,6 +23,32 @@ struct Row(T)
         // row by name. For example,
         //     double price() { return this.df.price[this.rowIndex]; }
         mixin(i"$(fieldTypes[idx].stringof) $(name)() {return this.df.$(name)[this.index];}".text);
+    }
+
+    /**
+     * Access the column by label
+     */
+    Variant opIndex(string label)
+    {
+        Variant output;
+    s1: switch (label)
+        {
+            static foreach(name; fieldNames)
+            {
+                mixin("case \"" ~ name ~ "\": output = this.df." ~ name ~ "[this.index]; break s1;");
+            }
+        default:
+            throw new RangeError("invalid label");
+        }
+        return output;
+    }
+
+    /**
+       Access the column by index
+     */
+    Variant opIndex(size_t idx)
+    {
+        return opIndex(this.df.columnNames[idx]);
     }
 
     string toString()

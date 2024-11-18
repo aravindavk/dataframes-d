@@ -140,6 +140,25 @@ Access column,
 auto firstPrice = df.unitPrice[0];
 ```
 
+```d
+auto names = df.name;
+// OR
+auto names = df["name"].get!string;
+// OR
+auto names = df[0].get!string;
+```
+
+To access column from a Row,
+
+```d
+auto firstRow = df.row(0);
+string name = firstRow.name;
+// OR
+string name = firstRow["name"].get!string;
+// OR
+string name = firstRow[0].get!string;
+```
+
 ## Updating the derived columns
 
 In the above example, `totalPrice` data is not available in the initial dataset. To calculate the `totalPrice`,

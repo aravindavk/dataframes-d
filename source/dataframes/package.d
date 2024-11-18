@@ -6,6 +6,8 @@ import std.algorithm;
 import std.array;
 import std.format;
 import std.conv : text;
+import std.variant;
+import core.exception;
 
 public
 {
@@ -70,6 +72,32 @@ class DataFrame(T)
     }
 
     mixin("this(" ~ initializerArgs ~ "){" ~ initializerContent ~ "}");
+
+    /**
+     * Access the DataFrame column by label
+     */
+    Variant opIndex(string label)
+    {
+        Variant output;
+    s1: switch (label)
+        {
+            static foreach(name; fieldNames)
+            {
+                mixin("case \"" ~ name ~ "\": output = this." ~ name ~ "; break s1;");
+            }
+        default:
+            throw new RangeError("invalid label");
+        }
+        return output;
+    }
+
+    /**
+     * Access the DataFrame column by index
+     */
+    Variant opIndex(size_t idx)
+    {
+        return opIndex(columnNames[idx]);
+    }
 
     /**
      * Get the list of column names
@@ -333,6 +361,12 @@ unittest
     assert(result[4].name == "D");
     assert(result[5].name == "E");
 
+    // Access the Row column by label
+    assert(result[0]["name"].get!string == "A");
+
+    // Access the Row column by index
+    assert(result[0][0].get!string == "A");
+
     struct PriceList
     {
         string name;
@@ -365,4 +399,10 @@ unittest
     assert(lastTwo.length == 2);
     assert(lastTwo[0].name == "E");
     assert(lastTwo[1].name == "A");
+
+    // Access the DataFrame column by key
+    auto names1 = df["name"].get!(Column!string);
+    assert(names1[0] == "A");
+    auto names2 = df[0].get!(Column!string);
+    assert(names2[0] == "A");
 }
