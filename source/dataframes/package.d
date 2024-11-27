@@ -261,12 +261,12 @@ class DataFrame(T)
         return output.data;
     }
 
-    DataFrame!T to_df()
+    DataFrame!T toDataFrame()
     {
-        return to_df!T;
+        return toDataFrame!T;
     }
 
-    DataFrame!T1 to_df(T1)()
+    DataFrame!T1 toDataFrame(T1)()
     {
         auto output = new DataFrame!T1;
         foreach(r; this.rows)
@@ -472,17 +472,17 @@ unittest
     auto items = df.rows
         .sort!("a.name < b.name")
         .uniq!("a.name == b.name")
-        .to_df!PriceList;
+        .toDataFrame!PriceList;
 
     assert(items.length == 5);
     assert(items.ncol == 2);
     assert(items.columnNames == ["name", "price"]);
 
-    auto dfCopy = df.to_df;
+    auto dfCopy = df.toDataFrame;
     assert(dfCopy.ncol == 4);
     assert(dfCopy.nrow == 6);
 
-    auto itemsDf = df.to_df!PriceList;
+    auto itemsDf = df.toDataFrame!PriceList;
     assert(itemsDf.ncol == 2);
     assert(itemsDf.nrow == 6);
 

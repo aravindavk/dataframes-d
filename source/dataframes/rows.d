@@ -88,7 +88,7 @@ struct Row(T)
     }
 }
 
-DataFrame!T to_df(T, Range)(Range rows)
+DataFrame!T toDataFrame(T, Range)(Range rows)
 {
     auto df = new DataFrame!T;
 

@@ -261,7 +261,7 @@ struct PriceList
 df.rows
     .sort!("a.name < b.name")
     .uniq!("a.name == b.name")
-    .to_df!PriceList
+    .toDataFrame!PriceList
     .writeln;
 ```
 
