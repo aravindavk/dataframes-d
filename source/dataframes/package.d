@@ -5,7 +5,7 @@ import std.range;
 import std.algorithm;
 import std.array;
 import std.format;
-import std.conv : text;
+import std.conv : text, to;
 import std.variant;
 import core.exception;
 
@@ -274,6 +274,102 @@ class DataFrame(T)
 
         return output;
     }
+
+    Column!T1 toColumn(T1, string colName)(RowType[] rows)
+    {
+        Column!T1 output;
+        foreach(row; rows)
+            mixin("output ~= row." ~ colName ~ ";");
+
+        return output;
+    }
+
+    private void applyLogic(T1)(T1[] data, ref T1 field, string logic)
+    {
+        switch(logic)
+        {
+        case "first":
+            if (data.length > 0)
+                field = data[0];
+            break;
+        case "last":
+            if (data.length > 0)
+                field = data[$-1];
+            break;
+        case "max":
+            field = data.maxElement;
+            break;
+        case "min":
+            field = data.minElement;
+            break;
+        case "count":
+            field = data.length.to!T1;
+            break;
+        case "sum":
+            static if (isNumeric!(T1))
+                field = data.sum;
+            break;
+        default:
+            break;
+        }
+    }
+
+    private void setAggregateLogic(RowType[] rowsdata, ref T row, string fieldName, string logic)
+    {
+    ss:switch(fieldName)
+        {
+            static foreach(idx, name; fieldNames)
+            {
+                // Ex:
+                // case "<column-name>":
+                //     auto col = toColumn!(<type>, <name>)(rowsdata);
+                //     applyLogic!(Type)(col.values, row.<name>, logic);
+                //     break;
+                mixin("case name:
+                           auto col = toColumn!(" ~ fieldTypes[idx].stringof ~ ", \"" ~ name ~ "\")(rowsdata);
+                           applyLogic!(" ~ fieldTypes[idx].stringof ~ ")(col.values, row." ~ name ~ ", logic);
+                           break ss;");
+            }
+        default:
+            break;
+        }
+    }
+
+    DataFrame!T resample(T1)(T1 grouped, string[string] logic)
+    {
+        auto df = new DataFrame!T;
+        foreach(grp; grouped)
+        {
+            T output;
+            foreach(kv; logic.byKeyValue)
+                setAggregateLogic(grp.array, output, kv.key, kv.value);
+
+            df.add(output);
+        }
+
+        return df;
+    }
+
+    // Resample using same logic for all the fields
+    DataFrame!T resample(T1)(T1 grouped, string logic)
+    {
+        string[string] logic2;
+        static foreach(name; fieldNames)
+            logic2[name] = logic;
+        return resample(grouped, logic2);
+    }
+
+    // Apply logic in the same order of the struct fields
+    DataFrame!T resample(T1)(T1 grouped, string[] logic)
+    {
+        string[string] logic2;
+        static foreach(idx, name; fieldNames)
+        {
+            if (logic.length > idx)
+                logic2[name] = logic[idx];
+        }
+        return resample(grouped, logic2);
+    }
 }
 
 unittest
@@ -405,4 +501,49 @@ unittest
     assert(names1[0] == "A");
     auto names2 = df[0].get!(Column!string);
     assert(names2[0] == "A");
+
+    import std.stdio;
+
+    struct Sample
+    {
+        string name;
+        string name2;
+        double value1;
+        double value2;
+        size_t count;
+    }
+
+    auto df2 = new DataFrame!Sample(
+        name: ["A", "A", "B", "B", "B", "C"],
+        name2: ["A1", "A2", "B1", "B2", "B3", "C1"],
+        value1: [1, 2, 3, 4, 5, 6],
+        value2: [10, 20, 30, 40, 50, 60],
+        count: [0, 0, 0, 0, 0, 0]
+    );
+
+    auto grouped = df2.rows.chunkBy!((a, b) => a.name == b.name);
+    auto logic = ["name": "first", "value1": "max", "value2": "sum", "name2": "last", "count": "count"];
+    auto df3 = df2.resample(grouped, logic);
+    assert(df3.nrow == 3);
+    assert(df3.name.values == ["A", "B", "C"]);
+    assert(df3.name2.values == ["A2", "B3", "C1"]);
+    assert(df3.value1.values == [2.0, 5.0, 6.0]);
+    assert(df3.value2.values == [30.0, 120.0, 60.0]);
+    assert(df3.count.values == [2, 3, 1]);
+
+    auto df4 = df2.resample(df2.rows.chunkBy!((a, b) => a.name == b.name), "sum");
+    assert(df4.nrow == 3);
+    assert(df4.name.values == ["", "", ""]);
+    assert(df4.name2.values == ["", "", ""]);
+    assert(df4.value1.values == [3.0, 12.0, 6.0]);
+    assert(df4.value2.values == [30.0, 120.0, 60.0]);
+    assert(df4.count.values == [0, 0, 0]);
+
+    auto df5 = df2.resample(df2.rows.chunkBy!((a, b) => a.name == b.name), ["first", "last", "max", "sum"]);
+    assert(df5.nrow == 3);
+    assert(df5.name.values == ["A", "B", "C"]);
+    assert(df5.name2.values == ["A2", "B3", "C1"]);
+    assert(df5.value1.values == [2.0, 5.0, 6.0]);
+    assert(df5.value2.values == [30.0, 120.0, 60.0]);
+    assert(df5.count.values == [0, 0, 0]);
 }

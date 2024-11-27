@@ -264,3 +264,30 @@ df.rows
     .to_df!PriceList
     .writeln;
 ```
+
+## Resampling
+Using `chunkBy`, group the records then apply the logic to use in each groups. Logic can be string, array of string or hash map.
+
+```d
+auto dfSummary = df.resample(df.rows.chunkBy!((a, b) => a.name == b.name), logic);
+```
+
+First argument creates the group as required, and logic will be applied to other columns.
+
+```d
+string logic = "sum";
+// OR
+//                name     quantity   price
+string[] logic = ["first", "sum",     "sum"];
+// OR
+string[string] logic = ["name": "first", "quantity": "sum", "price": "sum"];
+```
+
+Currently supported logics are:
+
+- `first` - Select the first element from the group.
+- `last` - Select the last element from the group.
+- `max` - Maximum value from the column.
+- `min` - Minimum value from the column.
+- `count` - Count of the values in each group.
+- `sum` - Sum of each element in the column.
