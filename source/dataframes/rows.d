@@ -7,6 +7,7 @@ import std.format;
 import std.variant;
 import core.exception;
 import std.datetime;
+import std.json;
 
 import dataframes;
 
@@ -86,6 +87,15 @@ struct Row(T)
         }
 
         return output;
+    }
+
+    JSONValue toJSON()
+    {
+        JSONValue rowdata;
+        static foreach(name; fieldNames)
+            mixin("rowdata[name] = this." ~ name ~ ";");
+
+        return rowdata;
     }
 }
 
