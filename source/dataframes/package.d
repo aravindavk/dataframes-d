@@ -8,6 +8,7 @@ import std.format;
 import std.conv : text, to;
 import std.variant;
 import core.exception;
+import std.datetime;
 
 public
 {
@@ -303,7 +304,8 @@ class DataFrame(T)
             field = data.minElement;
             break;
         case "count":
-            field = data.length.to!T1;
+            static if (!is(T1 == Date))
+                field = data.length.to!T1;
             break;
         case "sum":
             static if (isNumeric!(T1))

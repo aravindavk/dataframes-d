@@ -6,6 +6,7 @@ import std.range;
 import std.format;
 import std.variant;
 import core.exception;
+import std.datetime;
 
 import dataframes;
 
