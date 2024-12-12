@@ -291,3 +291,11 @@ Currently supported logics are:
 - `min` - Minimum value from the column.
 - `count` - Count of the values in each group.
 - `sum` - Sum of each element in the column.
+
+## DataFrame to JSON
+
+To convert a DataFrame to JSON,
+
+```d
+auto jsonData = df.toJSON;
+```

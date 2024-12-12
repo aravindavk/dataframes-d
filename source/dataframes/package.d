@@ -5,6 +5,7 @@ import std.range;
 import std.algorithm;
 import std.array;
 import std.format;
+import std.json;
 import std.conv : text, to;
 import std.variant;
 import core.exception;
@@ -372,6 +373,15 @@ class DataFrame(T)
         }
         return resample(grouped, logic2);
     }
+
+    JSONValue toJSON()
+    {
+        JSONValue output = JSONValue.emptyArray;
+        foreach(row; this.rows)
+            output.array ~= row.toJSON;
+
+        return output;
+    }
 }
 
 unittest
@@ -548,4 +558,9 @@ unittest
     assert(df5.value1.values == [2.0, 5.0, 6.0]);
     assert(df5.value2.values == [30.0, 120.0, 60.0]);
     assert(df5.count.values == [0, 0, 0]);
+
+    auto jsonOutput = `[{"count":0,"name":"A","name2":"A2","value1":2.0,"value2":30.0},
+                        {"count":0,"name":"B","name2":"B3","value1":5.0,"value2":120.0},
+                        {"count":0,"name":"C","name2":"C1","value1":6.0,"value2":60.0}]`;
+    assert(df5.toJSON == parseJSON(jsonOutput));
 }
