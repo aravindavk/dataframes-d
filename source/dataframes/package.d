@@ -75,6 +75,16 @@ class DataFrame(T)
 
     mixin("this(" ~ initializerArgs ~ "){" ~ initializerContent ~ "}");
 
+    size_t opDollar(size_t pos)()
+    {
+        return length;
+    }
+
+    auto opSlice()(size_t start, size_t end)
+    {
+        return iota(start, end).map!(idx => row(idx)).array;
+    }
+
     /**
      * Access the DataFrame column by label
      */
@@ -563,4 +573,32 @@ unittest
                         {"count":0,"name":"B","name2":"B3","value1":5.0,"value2":120.0},
                         {"count":0,"name":"C","name2":"C1","value1":6.0,"value2":60.0}]`;
     assert(df5.toJSON == parseJSON(jsonOutput));
+
+    struct Sample2
+    {
+        string name;
+        double value;
+        double avg;
+    }
+
+    auto dfSample2 = new DataFrame!Sample2(
+        name: ["A", "A", "B", "B", "B", "C"],
+        value: [1, 2, 3, 4, 5, 6]
+    );
+
+    import std.math : isNaN;
+
+    dfSample2.avg = dfSample2.value.rolling!(mean, double)(2);
+    assert(dfSample2.avg[0].isNaN);
+    assert(dfSample2.avg.values[1..$] == [1.5, 2.5, 3.5, 4.5, 5.5]);
+
+    double smaFunc(Row!Sample2[] data)
+    {
+        // Get the mean of the field "value"
+        return data.map!(a => a.value).mean;
+    }
+
+    dfSample2.avg = dfSample2.rolling!(smaFunc, double)(2);
+    assert(dfSample2.avg[0].isNaN);
+    assert(dfSample2.avg.values[1..$] == [1.5, 2.5, 3.5, 4.5, 5.5]);
 }

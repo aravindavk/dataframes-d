@@ -299,3 +299,45 @@ To convert a DataFrame to JSON,
 ```d
 auto jsonData = df.toJSON;
 ```
+
+## Rolling
+Use this to apply aggregation function over a moving window. For example, to calculate the Simple moving average for the Price data.
+
+```d
+//                           FUNC  RETTYPE WINDOW
+df.sma21 = df.close.rolling!(mean, double)(21);
+```
+
+To use the cusom function with rolling. Example Exponential Moving Average:
+
+```d
+double[] ema(T)(T arr, int period)
+{
+    double prevEMA;
+    auto multiplier = 2.0 / (period + 1);
+
+    double emaFunc(int[] data)
+    {
+        if (isNaN(prevEMA))
+        {
+            prevEMA = mean(data);
+            return prevEMA;
+        }
+
+        auto lastValue = data[$-1];
+
+        prevEMA = lastValue * multiplier + prevEMA * (1 - multiplier);
+        return prevEMA;
+    }
+
+    return arr.rolling!(emaFunc, double)(period);
+}
+
+void main()
+{
+    auto window = 2;
+    auto arr = [10, 20, 30, 40, 50, 60, 70, 82, 91, 100];
+    writeln("SMA: ", arr.rolling!(mean, double)(window));
+    writeln("EMA: ", arr.ema(window));
+}
+```
