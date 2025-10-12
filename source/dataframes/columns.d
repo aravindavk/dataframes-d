@@ -47,6 +47,16 @@ struct Column(T)
         values ~= rhs;
     }
 
+    size_t opDollar(size_t pos)()
+    {
+        return values.length;
+    }
+
+    auto opSlice()(size_t start, size_t end)
+    {
+        return values[start .. end];
+    }
+
     T opIndex(size_t idx)
     {
         return values[idx];
