@@ -341,3 +341,23 @@ void main()
     writeln("EMA: ", arr.ema(window));
 }
 ```
+
+## Shift
+
+Shift Column values by given number of indices.
+
+```d
+auto c1 = Column!int([10, 20, 30, 40, 50]);
+writeln(c1.shift(1)); // Shifts index by 1 => [0, 10, 20, 30, 40]
+writeln(c1.shift(-1)); // Reverse Shifts index by 1 => [20, 30, 40, 50, 0]
+```
+
+Sets the default value of respective type (Ex: `nan` for double, `""` for string etc) when shifted.
+
+To find the average of the last two values:
+
+```d
+auto c1 = Column!int([10, 20, 30, 40, 50]);
+auto avgCol = (c1 + c1.shift(1)) / 2;
+writeln(avgCol);
+```

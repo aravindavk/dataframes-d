@@ -12,6 +12,15 @@ import dataframes.helpers;
 struct Column(T)
 {
     T[] values;
+    int shiftBy;
+    size_t currentFrontIndex = 0;
+    size_t currentBackIndex;
+
+    this(T[] values)
+    {
+        this.values = values;
+        currentBackIndex = values.length;
+    }
 
     /**
      * Get the length of Items in the column
@@ -59,7 +68,10 @@ struct Column(T)
 
     T opIndex(size_t idx)
     {
-        return values[idx];
+        auto newIdx = idx - this.shiftBy;
+        if (shiftBy != 0 && (newIdx < 0 || newIdx >= values.length)) return T.init;
+
+        return values[newIdx];
     }
 
     // TODO: Support all Operations?
@@ -80,7 +92,7 @@ struct Column(T)
                 static if (isNumeric!T2)
                     auto rhsValue = rhs;
                 else
-                    auto rhsValue = rhs.values[idx];
+                    auto rhsValue = rhs[idx];
 
                 switch(op)
                 {
@@ -106,27 +118,54 @@ struct Column(T)
 
     T front()
     {
-        return this.values.front;
+        return this[currentFrontIndex];
     }
 
     void popFront()
     {
-        this.values.popFront;
+        currentFrontIndex++;
     }
 
     bool empty()
     {
-        return this.values.empty;
+        return currentFrontIndex >= this.values.length || currentBackIndex < 0;
     }
 
     T back()
     {
-        return this.values.back;
+        return this[currentBackIndex];
     }
 
     void popBack()
     {
-        return this.values.popBack;
+        currentBackIndex--;
+    }
+
+    Column!T shift(int value)
+    {
+        Column!T newCol;
+        this.shiftBy = value;
+        return this;
+    }
+
+    bool opEquals(Column!T rhs)
+    {
+        import std.math.operations : isClose;
+        import std.range : enumerate;
+        import std.math : isNaN;
+
+        if (this.length != rhs.length) return false;
+
+        foreach(idx, _value; this.values.enumerate)
+        {
+            static if (isFloatingPoint!T) {
+                if ((this[idx].isNaN && !rhs[idx].isNaN) || (!this[idx].isNaN && rhs[idx].isNaN)) return false;
+                else continue;
+            }
+
+            if (!isClose(this[idx], rhs[idx])) return false;
+        }
+        return true;
     }
 }
 
@@ -144,4 +183,20 @@ unittest
     auto unitPrice = price / quantity;
 
     assert(unitPrice == Column!double([2.5, 6]));
+
+    auto c3 = Column!double([100, 200, 300]);
+    auto c4 = Column!double([10, 20, 30]);
+
+    assert(c3+c4.shift(1) == Column!double([double.init, 210, 320]));
+    assert(c3+c4.shift(-1) == Column!double([120, 230, double.init]));
+
+    import std.algorithm.iteration : sum, filter;
+    import std.math : isNaN;
+
+    assert(c3.shift(1).filter!(n => !n.isNaN).sum == 300);
+    assert(c3.shift(-1).filter!(n => !n.isNaN).sum == 500);
+
+    auto col1 = Column!int([10, 20, 30, 40, 50]);
+    auto avgCol = (col1 + col1.shift(1)) / 2;
+    assert(avgCol == Column!int([5, 15, 25, 35, 45]));
 }
