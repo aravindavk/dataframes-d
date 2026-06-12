@@ -214,12 +214,12 @@ class DataFrame(T)
             static if(isNumeric!(typeof( __traits(getMember, this, name).values[0])))
             {
                 if (is(typeof( __traits(getMember, this, name).values[0]) == double))
-                    output.put(format("%10.2f  ", __traits(getMember, this, name).values[idx]));
+                    output.put(format("%10.2f  ", __traits(getMember, this, name)[idx]));
                 else
-                    output.put(format("%10s  ", __traits(getMember, this, name).values[idx]));
+                    output.put(format("%10s  ", __traits(getMember, this, name)[idx]));
             }
             else
-                output.put(format("%-10s  ", __traits(getMember, this, name).values[idx]));
+                output.put(format("%-10s  ", __traits(getMember, this, name)[idx]));
         }
 
         return output.data ~ "\n";
