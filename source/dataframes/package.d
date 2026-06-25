@@ -11,6 +11,8 @@ import std.variant;
 import core.exception;
 import std.datetime;
 
+import json_serialization;
+
 public
 {
     import dataframes.helpers;
@@ -32,6 +34,26 @@ class DataFrame(T)
     static foreach(idx, type; fieldTypes)
     {
         mixin(Column!(type).stringof ~ " " ~ fieldNames[idx] ~ ";");
+    }
+
+    static DataFrame!T fromJSON(JSONValue data)
+    {
+        auto result = new DataFrame!T;
+
+        if (data.type == JSONType.array)
+        {
+            foreach(entry; data.array)
+                result.add(entry.deserializeJSONValue!T);
+        }
+        else
+            result.add(data.deserializeJSONValue!T);
+
+        return result;
+    }
+
+    static DataFrame!T fromJSONString(string data)
+    {
+        return fromJSON(parseJSON(data));
     }
 
     private static string initializerArgs()
@@ -601,4 +623,17 @@ unittest
     dfSample2.avg = dfSample2.rolling!(smaFunc, double)(2);
     assert(dfSample2.avg[0].isNaN);
     assert(dfSample2.avg.values[1..$] == [1.5, 2.5, 3.5, 4.5, 5.5]);
+
+    struct SampleJson
+    {
+        string name;
+        double value;
+        double total;
+    }
+
+    auto dfJson = DataFrame!SampleJson.fromJSONString(`[{"name": "A", "value": 100}, {"name": "B", "value": 200}]`);
+    assert(dfJson.name[0] == "A");
+    assert(dfJson.name[1] == "B");
+    assert(dfJson.value[0] == 100);
+    assert(dfJson.value[1] == 200);
 }
