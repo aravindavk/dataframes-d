@@ -361,3 +361,28 @@ auto c1 = Column!int([10, 20, 30, 40, 50]);
 auto avgCol = (c1 + c1.shift(1)) / 2;
 writeln(avgCol);
 ```
+
+## Create a DataFrame from JSON input
+
+From `JSONValue`,
+
+
+```d
+struct OHLC
+{
+    string timestamp;
+    double open;
+    double high;
+    double low;
+    double close;
+    long volume;
+}
+
+auto df = DataFrame!OHLC.fromJSON(value);
+```
+
+From JSON string,
+
+```d
+auto df = DataFrame!OHLC.fromJSONString(`[{"timestamp": "2026-06-25", "open": 120, ...}]`);
+```
